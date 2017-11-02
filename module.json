@@ -1,0 +1,14 @@
+{
+    "name": "REST API",
+    "author": {
+       "name": "Crabbey",
+       "email": "crabbey@flashylights.co.uk"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/flashylights/API.git"
+    },
+    "entryPoints": [
+        "api.js"
+    ]
+}
