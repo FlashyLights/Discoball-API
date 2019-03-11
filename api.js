@@ -5,8 +5,8 @@ class api {
 		var self = this;
 		self.bot = bot;
 		self.port = 3000;
-		if (self.bot.config.moduleConfigs.api && self.bot.config.moduleConfigs.api.port) {
-			self.port = self.bot.config.moduleConfigs.api.port;
+		if (self.bot.config.has('api') && self.bot.config.has('api.port')) {
+			self.port = self.bot.config.get('api.port');
 		}
 		self.app = express();
 		self.app.self = self;
