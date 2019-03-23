@@ -22,6 +22,7 @@ class api {
 		var self = this;
 		self.app.get("/user/list", self.getAllUsers);
 		self.app.get("/user/count", self.getUserCount);
+		self.app.get("/user/hasrole", self.userHasRole);
 		self.app.get("/voiceInfo", self.getVoiceInfo);
 		self.app.get("/user/byrole", self.getUsersByRole);
 		self.app.get("/channel/send", self.sendMessageToChannel);
@@ -159,8 +160,40 @@ class api {
 			return self.respond(res, 0, false, ["I could not find that channel"]);
 		}
 		channel.send(req.query.message).then(function(msg) {
-		return self.respond(res, 1);
+			return self.respond(res, 1);
 		});
+	}
+
+	userHasRole(req, res) {
+		var self = req.app.self;
+		if (!req.query.guildid) {
+			return self.respond(res, 0, false, ["I require guildid to work"]);
+		}
+		if (!req.query.userid) {
+			return self.respond(res, 0, false, ["I require a userid to work"]);
+		}
+		if (!req.query.rolename) {
+			return self.respond(res, 0, false, ["I require a rolename to work"]);
+		}
+		var guild = self.bot.dclient.guilds.get(req.query.guildid);
+		if (!guild) {
+			return self.respond(res, 0, false, ["I could not find that guild"]);
+		}
+		var user = guild.members.find(function(member) {
+			return member.user.id == req.query.userid;
+		});
+		if (!user) {
+			return self.respond(res, 0, false, ["I could not find that user in that guild"]);
+		}
+		var role = user.roles.find(function(role) {
+			console.log(role.name, req.query.rolename);
+			return role.name.toLowerCase() == req.query.rolename.toLowerCase();
+		});
+		if (role) {
+			return self.respond(res, 1);
+		}
+		return self.respond(res, 0);
+
 	}
 
 }
