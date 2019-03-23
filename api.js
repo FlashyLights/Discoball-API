@@ -23,6 +23,7 @@ class api {
 		self.app.get("/user/list", self.getAllUsers);
 		self.app.get("/user/count", self.getUserCount);
 		self.app.get("/voiceInfo", self.getVoiceInfo);
+		self.app.get("/user/byrole", self.getUsersByRole);
 	}
 
 	respond(res, success, data, messages) {
@@ -108,6 +109,31 @@ class api {
 			}).size,
 		};
 		return self.respond(res, 1, users);
+	}
+
+	getUsersByRole(req, res) {
+		var self = req.app.self;
+		if (!req.query.guildid) {
+			return self.respond(res, 0, false, ["I require guildid to work"]);
+		}
+		var guild = self.bot.dclient.guilds.get(req.query.guildid);
+		if (!guild) {
+			return self.respond(res, 0, false, ["I could not find that guild"]);
+		}
+		var roles = {}
+		guild.roles.map(function(role, id) {
+			roles[role.name] = {
+				online: 0,
+				offline: 0,
+			}
+			role.members.map(function(member) {
+				if (member.presence.status != "offline") {
+					return roles[role.name].online++;
+				}
+				return roles[role.name].offline++;
+			})
+		})
+		return self.respond(res, 1, roles);
 	}
 
 }
