@@ -24,6 +24,7 @@ class api {
 		self.app.get("/user/count", self.getUserCount);
 		self.app.get("/voiceInfo", self.getVoiceInfo);
 		self.app.get("/user/byrole", self.getUsersByRole);
+		self.app.get("/channel/send", self.sendMessageToChannel);
 	}
 
 	respond(res, success, data, messages) {
@@ -134,6 +135,32 @@ class api {
 			})
 		})
 		return self.respond(res, 1, roles);
+	}
+
+	sendMessageToChannel(req, res) {
+		var self = req.app.self;
+		if (!req.query.guildid) {
+			return self.respond(res, 0, false, ["I require guildid to work"]);
+		}
+		if (!req.query.message) {
+			return self.respond(res, 0, false, ["I require a message to work"]);
+		}
+		if (!req.query.target) {
+			return self.respond(res, 0, false, ["I require a target to work"]);
+		}
+		var guild = self.bot.dclient.guilds.get(req.query.guildid);
+		if (!guild) {
+			return self.respond(res, 0, false, ["I could not find that guild"]);
+		}
+		var channel = guild.channels.find(function(chan) {
+			return chan.name == req.query.target;
+		});
+		if (!channel) {
+			return self.respond(res, 0, false, ["I could not find that channel"]);
+		}
+		channel.send(req.query.message).then(function(msg) {
+		return self.respond(res, 1);
+		});
 	}
 
 }
